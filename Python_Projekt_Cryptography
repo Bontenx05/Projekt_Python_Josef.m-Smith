@@ -1,0 +1,97 @@
+import os
+
+import argparse
+
+from cryptography.fernet import Fernet
+
+
+def generate_key():
+
+    key = Fernet.generate_key()
+
+    with open("secret.key", "wb") as key_file:
+
+        key_file.write(key)
+
+    print("Nyckel genererad och sparad som 'secret.key'.")
+
+
+def load_key():
+
+    return open("secret.key", "rb").read()
+
+
+def encrypt_file(file_name, key):
+
+    fernet = Fernet(key)
+
+    with open(file_name, "rb") as file:
+
+        original = file.read()
+
+    encrypted = fernet.encrypt(original)  # Korrigerad här
+
+    with open(file_name + ".enc", "wb") as encrypted_file:
+
+        encrypted_file.write(encrypted)
+
+    print(f"Filen '{file_name}' har krypterats och sparats som '{file_name}.enc'.")
+
+
+def decrypt_file(encrypted_file_name, key):
+
+    fernet = Fernet(key)
+
+    with open(encrypted_file_name, "rb") as encrypted_file:
+
+        encrypted = encrypted_file.read()
+
+    decrypted = fernet.decrypt(encrypted)  # Korrigerad här
+
+    original_file_name = encrypted_file_name.replace(".enc", "")
+
+    with open(original_file_name, "wb") as decrypted_file:
+
+        decrypted_file.write(decrypted)
+
+    print(f"Filen '{encrypted_file_name}' har dekrypterats och sparats som '{original_file_name}'.")
+
+
+def main():
+
+    parser = argparse.ArgumentParser(description="Kryptera och dekryptera filer.")
+
+    parser.add_argument("--generate-key", action="store_true", help="Generera en ny krypteringsnyckel.")
+
+    parser.add_argument("--encrypt", type=str, help="Fil som ska krypteras.")
+
+    parser.add_argument("--decrypt", type=str, help="Fil som ska dekrypteras.")
+
+
+    args = parser.parse_args()
+
+
+    if args.generate_key:
+
+        generate_key()
+
+    elif args.encrypt:
+
+        key = load_key()
+
+        encrypt_file(args.encrypt, key)
+
+    elif args.decrypt:
+
+        key = load_key()
+
+        decrypt_file(args.decrypt, key)  # Korrigerad här
+
+    else:
+
+        print("Ingen giltig åtgärd angiven. Använd --help för hjälp.")
+
+
+if __name__ == "__main__":  # Korrigerad här
+
+    main() 
